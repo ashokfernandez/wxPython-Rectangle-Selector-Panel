@@ -9,13 +9,15 @@ Select an area on an image using a click and drag rectangle in wxPython.
 
 This can be used to graphically measure areas on an image for simple image editing operations such as cropping.
 
-## Usage example
 
-### Running the demo
-Note: this usage example can be run by running the main file, eg in a command window run the command
+
+## Running the demo
+The usage example below can be run by running the main file. In a command window run the command
 
     python RectangleSelectorPanel.py
 
+
+## Usage example
 
 Create an panel with an initial image
 
