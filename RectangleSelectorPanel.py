@@ -1,9 +1,27 @@
+# -------------------------------------------------------------------------------------------------------------------
+#  wxPython Rectangle Selector Panel : Select an area on an image using a click and drag rectangle in wxPython 
+# -------------------------------------------------------------------------------------------------------------------
+# 
+# Author: Ashok Fernandez - https://github.com/ashokfernandez/
+# Date  : 05 / 12 / 2013
+# 
+# Description: 
+# Select an area on an image using a click and drag rectangle in wxPython.
+# This can be used to graphically measure areas on an image for simple image editing operations such as cropping.
+# 
+# Licence: 
+# Copyright Ashok Fernandez 2013
+# Released under the MIT license - http://opensource.org/licenses/MIT
+# 
+# Usage example: 
+# See the bottom of this file. The demo can be run by running this file.
+# -------------------------------------------------------------------------------------------------------------------
 
 # Used to determine the size of an image
-from PIL import Image
+from PIL import Image   
 
-# matplotlib.image requires PIL
-import matplotlib
+# Use the wxPython backend of matplotlib
+import matplotlib       
 matplotlib.use('WXAgg')
 
 # Matplotlib elements used to draw the bounding rectangle
@@ -11,45 +29,36 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 
-# GUI stuff
+# wxPython stuff for the demo
 import wx
 
 
-
-
-
-
-
-
+# --------------------------------------------------------------------------------------------------------------------
+# CLASSES
+# --------------------------------------------------------------------------------------------------------------------
 
 class RectangleSelectImagePanel(wx.Panel):
+    ''' Panel that contains an image that allows the users to select an area of the image with the mouse. The user clicks and
+    holds the mouse to create a dotted rectangle, and when the mouse is released the rectangles origin, width and height can be
+    read. The dimensions of these readings are always relative to the original image, so even if the image is scaled up larger
+    to fit the panel the measurements will always refer to the original image.'''
+
     def __init__(self, parent, pathToImage=None):
-    	''' Initialise a canvas panel'''
+    	''' Initialise the panel. Setting an initial image is optional.'''
+        
+        # Initialise the parent
         wx.Panel.__init__(self, parent)
 
-        # Intitialise the matplotlib figure, canvas and axes
-        # REFERNCE: http://stackoverflow.com/questions/18154337/matplotlib-subplot-with-image-background
-        self.figure = plt.figure() # Init the figure
-        # image = matplotlib.image.imread('images/Lenna.png') # Load the image into matplotlib
-        # imPIL = Image.open('images/Lenna.png') # Load the image using PIL to get it's dimensions
-        # imageSize = imPIL.size
-        # print imageSize
+        # Intitialise the matplotlib figure
+        self.figure = plt.figure()
 
         # Create an axes, turn off the labels and add them to the figure
         self.axes = plt.Axes(self.figure,[0,0,1,1])      
         self.axes.set_axis_off() 
         self.figure.add_axes(self.axes) 
 
-        # self.figure.figimage(image)
-        # self.axes = self.figure.add_subplot(111) # self.figure.add_axes([0,1,0,1]) #
-        
-        
-
+        # Add the figure to the wxFigureCanvas
         self.canvas = FigureCanvas(self, -1, self.figure)
-
-        # Turn off the axes labels
-        self.axes.get_xaxis().set_visible(False)
-        self.axes.get_yaxis().set_visible(False)
 
         # Initialise the rectangle
         self.rect = Rectangle((0,0), 1, 1, facecolor='None', edgecolor='green')
@@ -59,9 +68,9 @@ class RectangleSelectImagePanel(wx.Panel):
         self.y1 = None
         self.axes.add_patch(self.rect)
         
-        # Sizer to contain the widget
+        # Sizer to contain the canvas
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP)# | wx.GROW)
+        self.sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP)
         self.SetSizer(self.sizer)
         self.Fit()
         
@@ -89,6 +98,7 @@ class RectangleSelectImagePanel(wx.Panel):
         	self.rect.set_linestyle('dashed')
         	self.x0 = event.xdata
         	self.y0 = event.ydata
+
 
     def on_release(self, event):
     	'''Callback to handle the mouse being released over the canvas'''
@@ -119,7 +129,6 @@ class RectangleSelectImagePanel(wx.Panel):
             self.canvas.draw()
 
 
-
     def on_motion(self, event):
     	'''Callback to handle the motion event created by the mouse moving over the canvas'''
 
@@ -143,22 +152,36 @@ class RectangleSelectImagePanel(wx.Panel):
     def setImage(self, pathToImage):
     	'''Sets the background image of the canvas'''
     	
-    	image = matplotlib.image.imread(pathToImage) # Load the image into matplotlib
-        imPIL = Image.open(pathToImage) # Load the image using PIL to get it's dimensions
-        imageSize = imPIL.size
+        # Load the image into matplotlib and PIL
+    	image = matplotlib.image.imread(pathToImage) 
+        imPIL = Image.open(pathToImage) 
+
+        # Save the image's dimensions from PIL
+        self.imageSize = imPIL.size
+        
+        # Add the image to the figure and redraw the canvas. Also ensure the aspect ratio of the image is retained.
         self.axes.imshow(image,aspect='equal') 
         self.canvas.draw()
-        print imageSize
 
 
+
+# --------------------------------------------------------------------------------------------------------------------
+# DEMO
+# --------------------------------------------------------------------------------------------------------------------        
 
 if __name__ == "__main__":
-    app = wx.PySimpleApp()
+
+    # Create an demo application
+    app = wx.App()
+
+    # Create a frame and a RectangleSelectorPanel
     fr = wx.Frame(None, title='test')
     panel = RectangleSelectImagePanel(fr)
+    
+    # Set the image in the panel
     panel.setImage('images/Lenna.png')
-    # wx.CallLater(2000, panel.setImage, 'images/lena-bw.jpg')
-
+    
+    # Start the demo app
     fr.Show()
     app.MainLoop()
 
