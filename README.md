@@ -1,8 +1,8 @@
 # Image Rectangle Selector Panel
 
 
-## Author: [Ashok Fernandez](https://github.com/ashokfernandez/)
-## Date  : 05 / 12 / 2013
+### Author: [Ashok Fernandez](https://github.com/ashokfernandez/)
+### Date  : 05 / 12 / 2013
 
 ## Description: 
 Select an area on an image using a click and drag rectangle in wxPython.
