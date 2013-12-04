@@ -11,6 +11,12 @@ This can be used to graphically measure areas on an image for simple image editi
 
 ## Usage example
 
+### Running the demo
+Note: this usage example can be run by running the main file, eg in a command window run the command
+
+    python RectangleSelectorPanel.py
+
+
 Create an panel with an initial image
 
     fr = wx.Frame(None, title='test')
