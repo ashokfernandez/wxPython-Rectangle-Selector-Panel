@@ -44,7 +44,7 @@ class RectangleSelectImagePanel(wx.Panel):
     to fit the panel the measurements will always refer to the original image.'''
 
     def __init__(self, parent, pathToImage=None):
-    	''' Initialise the panel. Setting an initial image is optional.'''
+        ''' Initialise the panel. Setting an initial image is optional.'''
         
         # Initialise the parent
         wx.Panel.__init__(self, parent)
@@ -70,14 +70,14 @@ class RectangleSelectImagePanel(wx.Panel):
         
         # Sizer to contain the canvas
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP)
+        self.sizer.Add(self.canvas, 3, wx.ALL)
         self.SetSizer(self.sizer)
         self.Fit()
         
         # Connect the mouse events to their relevant callbacks
-        self.canvas.mpl_connect('button_press_event', self.on_press)
-        self.canvas.mpl_connect('button_release_event', self.on_release)
-        self.canvas.mpl_connect('motion_notify_event', self.on_motion)
+        self.canvas.mpl_connect('button_press_event', self._onPress)
+        self.canvas.mpl_connect('button_release_event', self._onRelease)
+        self.canvas.mpl_connect('motion_notify_event', self._onMotion)
         
         # Lock to stop the motion event from behaving badly when the mouse isn't pressed
         self.pressed = False
@@ -87,25 +87,25 @@ class RectangleSelectImagePanel(wx.Panel):
             self.setImage(pathToImage)
 
 
-    def on_press(self, event):
-    	''' Callback to handle the mouse being clicked and held over the canvas'''
+    def _onPress(self, event):
+        ''' Callback to handle the mouse being clicked and held over the canvas'''
 
-    	# Check the mouse press was actually on the canvas
-    	if event.xdata is not None and event.ydata is not None:
+        # Check the mouse press was actually on the canvas
+        if event.xdata is not None and event.ydata is not None:
 
-        	# Upon initial press of the mouse record the origin and record the mouse as pressed
-        	self.pressed = True
-        	self.rect.set_linestyle('dashed')
-        	self.x0 = event.xdata
-        	self.y0 = event.ydata
+            # Upon initial press of the mouse record the origin and record the mouse as pressed
+            self.pressed = True
+            self.rect.set_linestyle('dashed')
+            self.x0 = event.xdata
+            self.y0 = event.ydata
 
 
-    def on_release(self, event):
-    	'''Callback to handle the mouse being released over the canvas'''
+    def _onRelease(self, event):
+        '''Callback to handle the mouse being released over the canvas'''
 
-    	# Check that the mouse was actually pressed on the canvas to begin with and this isn't a rouge mouse 
-    	# release event that started somewhere else
-    	if self.pressed:
+        # Check that the mouse was actually pressed on the canvas to begin with and this isn't a rouge mouse 
+        # release event that started somewhere else
+        if self.pressed:
 
             # Upon release draw the rectangle as a solid rectangle
             self.pressed = False
@@ -114,8 +114,8 @@ class RectangleSelectImagePanel(wx.Panel):
             # Check the mouse was released on the canvas, and if it wasn't then just leave the width and 
             # height as the last values set by the motion event
             if event.xdata is not None and event.ydata is not None:
-	        	self.x1 = event.xdata
-	        	self.y1 = event.ydata
+                self.x1 = event.xdata
+                self.y1 = event.ydata
 
             # Set the width and height and origin of the bounding rectangle
             self.boundingRectWidth =  self.x1 - self.x0
@@ -129,31 +129,31 @@ class RectangleSelectImagePanel(wx.Panel):
             self.canvas.draw()
 
 
-    def on_motion(self, event):
-    	'''Callback to handle the motion event created by the mouse moving over the canvas'''
+    def _onMotion(self, event):
+        '''Callback to handle the motion event created by the mouse moving over the canvas'''
 
-    	# If the mouse has been pressed draw an updated rectangle when the mouse is moved so 
-    	# the user can see what the current selection is
-    	if self.pressed:
+        # If the mouse has been pressed draw an updated rectangle when the mouse is moved so 
+        # the user can see what the current selection is
+        if self.pressed:
 
-    		# Check the mouse was released on the canvas, and if it wasn't then just leave the width and 
-	        # height as the last values set by the motion event
-        	if event.xdata is not None and event.ydata is not None:
-	        	self.x1 = event.xdata
-	        	self.y1 = event.ydata
-    		
-    		# Set the width and height and draw the rectangle
-        	self.rect.set_width(self.x1 - self.x0)
-        	self.rect.set_height(self.y1 - self.y0)
-        	self.rect.set_xy((self.x0, self.y0))
-        	self.canvas.draw()
+            # Check the mouse was released on the canvas, and if it wasn't then just leave the width and 
+            # height as the last values set by the motion event
+            if event.xdata is not None and event.ydata is not None:
+                self.x1 = event.xdata
+                self.y1 = event.ydata
+            
+            # Set the width and height and draw the rectangle
+            self.rect.set_width(self.x1 - self.x0)
+            self.rect.set_height(self.y1 - self.y0)
+            self.rect.set_xy((self.x0, self.y0))
+            self.canvas.draw()
 
 
     def setImage(self, pathToImage):
-    	'''Sets the background image of the canvas'''
-    	
+        '''Sets the background image of the canvas'''
+        
         # Load the image into matplotlib and PIL
-    	image = matplotlib.image.imread(pathToImage) 
+        image = matplotlib.image.imread(pathToImage) 
         imPIL = Image.open(pathToImage) 
 
         # Save the image's dimensions from PIL
@@ -162,7 +162,6 @@ class RectangleSelectImagePanel(wx.Panel):
         # Add the image to the figure and redraw the canvas. Also ensure the aspect ratio of the image is retained.
         self.axes.imshow(image,aspect='equal') 
         self.canvas.draw()
-
 
 
 # --------------------------------------------------------------------------------------------------------------------
@@ -184,5 +183,3 @@ if __name__ == "__main__":
     # Start the demo app
     fr.Show()
     app.MainLoop()
-
-    
